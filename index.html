@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dental Cost Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#F5F0EB;color:#2a2a2a;font-family:'Newsreader',Georgia,serif;min-height:100vh;-webkit-font-smoothing:antialiased}
+::selection{background:#EC489930;color:#3D1D5C}
+
+.wrap{max-width:560px;margin:0 auto;padding:0 24px 80px}
+.hero{padding:72px 24px 56px;max-width:560px;margin:0 auto}
+.tag{font:400 10px/1 'IBM Plex Mono',monospace;letter-spacing:.18em;text-transform:uppercase;color:#b8a9c4}
+h1{font-size:40px;font-weight:300;line-height:1.15;letter-spacing:-.5px;color:#3D1D5C;margin:0 0 16px}
+.sub{font-size:16px;line-height:1.7;color:#9a8a9e;font-weight:300;max-width:420px}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:48px}
+label.fl{display:block;font:400 10px/1 'IBM Plex Mono',monospace;letter-spacing:.15em;text-transform:uppercase;color:#b8a9c4;margin-bottom:8px}
+select.fi,input.fi{width:100%;padding:8px 0;background:transparent;border:none;border-bottom:1px solid #d8cfe0;color:#2a2a2a;font:400 16px 'Newsreader',Georgia,serif;outline:none;border-radius:0;appearance:auto}
+input.fi{font-family:'IBM Plex Mono',monospace;font-size:16px}
+
+.mcd-bar{margin-bottom:40px;padding-bottom:20px;border-bottom:1px solid #e8e0d8}
+.mcd-bar .dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:10px;vertical-align:middle}
+.mcd-bar .tier{font:400 14px 'IBM Plex Mono',monospace;color:#3D1D5C}
+.mcd-bar .note{font-size:13px;color:#b8a9c4;margin-left:8px}
+.mcd-bar .eo-warn{font-size:13px;color:#c2340a;margin-top:10px;font-style:italic}
+
+.cat-wrap{border-top:1px solid #e8e0d8}
+.cat-wrap:last-of-type+.cat-end{border-top:1px solid #e8e0d8}
+.cat-btn{width:100%;display:flex;justify-content:space-between;align-items:center;padding:20px 0;background:none;border:none;cursor:pointer;font:400 17px 'Newsreader',Georgia,serif;color:#2a2a2a;text-align:left}
+.cat-btn .plus{font-size:20px;color:#d8cfe0;font-weight:300;transition:transform .2s}
+.cat-btn .plus.open{transform:rotate(45deg)}
+.cat-badge{font:400 10px 'IBM Plex Mono',monospace;background:#3D1D5C;color:#F5F0EB;border-radius:20px;padding:2px 9px;margin-left:10px}
+.cat-nc{font:400 11px 'IBM Plex Mono',monospace;color:#c2340a;margin-left:10px}
+.cat-body{overflow:hidden;transition:max-height .3s ease}
+
+.proc-row{display:flex;align-items:center;gap:16px;padding:13px 0;cursor:pointer;border-top:1px solid #f2ece6}
+.chk{width:18px;height:18px;border-radius:2px;border:1.5px solid #d8cfe0;background:transparent;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;transition:all .15s}
+.chk.on{border:none;background:#3D1D5C}
+.chk svg{display:none}
+.chk.on svg{display:block}
+.proc-name{flex:1;font-size:14px;color:#777}
+.proc-name.on{color:#2a2a2a}
+.proc-price{font:400 13px 'IBM Plex Mono',monospace;color:#d0c4d8;flex-shrink:0}
+.qty-wrap{display:flex;align-items:center;gap:8px;margin-left:2px}
+.qty-btn{width:22px;height:22px;border-radius:50%;border:1px solid #d8cfe0;background:transparent;color:#9a8a9e;cursor:pointer;font:400 13px 'IBM Plex Mono',monospace;display:flex;align-items:center;justify-content:center}
+.qty-val{font:400 13px 'IBM Plex Mono',monospace;min-width:12px;text-align:center}
+
+.results{margin-top:56px}
+.res-row{display:flex;justify-content:space-between;align-items:baseline;padding:11px 0;border-bottom:1px solid #f2ece6}
+.res-proc{font-size:14px;flex:1}
+.res-nums{font:400 13px 'IBM Plex Mono',monospace;text-align:right;display:flex;gap:12px}
+.res-strike{color:#d0c4d8;text-decoration:line-through}
+.res-pay{color:#2a2a2a;font-weight:500}
+.res-pay-full{color:#9a8a9e}
+
+.cap-warn{font-size:13px;color:#c2710c;margin-top:16px;font-style:italic}
+
+.totals{margin-top:48px;padding-top:28px;border-top:2px solid #3D1D5C}
+.tot-line{display:flex;justify-content:space-between;margin-bottom:6px}
+.tot-label{font-size:13px;color:#b8a9c4}
+.tot-val{font:400 14px 'IBM Plex Mono',monospace;color:#b8a9c4}
+.tot-cov{color:#2d8a4e}
+.tot-final{display:flex;justify-content:space-between;align-items:baseline;margin-top:20px}
+.tot-you{font-size:17px;color:#3D1D5C}
+.tot-big{font:300 36px 'IBM Plex Mono',monospace;letter-spacing:-1px;color:#EC4899}
+.tot-pct{font:400 11px 'IBM Plex Mono',monospace;color:#d0c4d8;text-align:right;margin-top:6px}
+
+.tips{margin-top:56px;padding-top:24px;border-top:1px solid #e8e0d8}
+.tips p{font-size:14px;color:#9a8a9e;line-height:2;margin:0 0 2px}
+.tips a{color:#3D1D5C;text-decoration-color:#d8cfe0}
+
+.empty{text-align:center;color:#d0c4d8;font-size:15px;padding:56px 0;font-style:italic}
+
+.link-btn{background:none;border:none;color:#b8a9c4;cursor:pointer;font:400 12px 'IBM Plex Mono',monospace;padding:0}
+.link-btn:hover{color:#3D1D5C}
+
+.map-wrap{margin-top:16px;max-height:340px;overflow-y:auto}
+.map-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #f2ece6;font-size:13px}
+.map-row.cur{background:#ece4f2;border-radius:2px}
+.map-state{width:130px;flex-shrink:0}
+.map-tier{font:400 11px 'IBM Plex Mono',monospace;color:#9a8a9e;flex:1}
+.map-cap{font:400 11px 'IBM Plex Mono',monospace;color:#d0c4d8}
+
+.src-wrap{margin-top:16px;font:400 11px/2 'IBM Plex Mono',monospace;color:#b8a9c4}
+.src-wrap b{color:#9a8a9e}
+
+.footer{text-align:center;font:400 11px 'IBM Plex Mono',monospace;color:#d0c4d8;margin-top:64px;letter-spacing:.05em}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <p class="tag">dental cost estimator</p>
+  <h1>How much will your<br>dentist visit cost?</h1>
+  <p class="sub">Pick your state, insurance, and procedures.<br>Get a realistic range before you call.</p>
+</div>
+
+<div class="wrap" id="app"></div>
+
+<script>
+const P={"Preventive":{"Routine Cleaning (D1110)":{l:100,m:135,h:200,mb:67},"Comprehensive Exam (D0150)":{l:50,m:90,h:150,mb:56},"Periodic Exam (D0120)":{l:30,m:55,h:90,mb:32},"Bitewing X-Rays (D0274)":{l:40,m:70,h:120,mb:24},"Full Mouth X-Rays (D0210)":{l:80,m:146,h:250,mb:57},"Panoramic X-Ray (D0330)":{l:75,m:130,h:200,mb:46},"Fluoride Varnish (D1206)":{l:20,m:40,h:70,mb:26},"Sealant per Tooth (D1351)":{l:30,m:50,h:80,mb:40}},"Basic Restorative":{"Filling — Composite, 1 surface (D2391)":{l:130,m:210,h:350,mb:107},"Filling — Composite, 2 surface (D2392)":{l:160,m:275,h:420,mb:138},"Filling — Composite, 3 surface (D2393)":{l:190,m:330,h:500,mb:173},"Filling — Amalgam, 1 surface (D2140)":{l:100,m:170,h:280,mb:74},"Simple Extraction (D7140)":{l:150,m:200,h:350,mb:100},"Surgical Extraction (D7210)":{l:200,m:350,h:550,mb:175}},"Major Restorative":{"Crown — Porcelain (D2740)":{l:800,m:1288,h:1800,mb:394},"Crown — PFM (D2750)":{l:800,m:1200,h:1700,mb:492},"Core Buildup (D2950)":{l:150,m:300,h:500,mb:85}},"Endodontics":{"Root Canal — Anterior (D3310)":{l:700,m:900,h:1200,mb:550},"Root Canal — Premolar (D3320)":{l:800,m:1050,h:1400,mb:650},"Root Canal — Molar (D3330)":{l:1000,m:1350,h:1800,mb:748}},"Periodontal":{"Scaling & Root Planing /quad (D4341)":{l:169,m:275,h:400,mb:130},"Perio Maintenance (D4910)":{l:100,m:175,h:280,mb:90}},"Prosthodontics":{"Complete Denture — Upper (D5110)":{l:1000,m:1800,h:3000,mb:575},"Complete Denture — Lower (D5120)":{l:1000,m:1800,h:3000,mb:575},"Bridge — 3 unit (D6750×3)":{l:2400,m:3600,h:5500,mb:1200},"Single Implant Post (D6010)":{l:1500,m:3000,h:5000,mb:null}},"Cosmetic":{"In-office Whitening (D9972)":{l:300,m:550,h:900,mb:null},"Porcelain Veneer (D2962)":{l:800,m:1500,h:2500,mb:114}}};
+
+const TM={Preventive:"preventive","Basic Restorative":"basic","Major Restorative":"major",Endodontics:"basic",Periodontal:"basic",Prosthodontics:"major",Cosmetic:"cosmetic"};
+const IT={"No insurance":{p:0,b:0,j:0,c:0,hm:0,hd:0},PPO:{p:1,b:.8,j:.5,c:0,hm:1,hd:1,dm:1500,dd:50},"PPO Enhanced":{p:1,b:.8,j:.6,c:0,hm:1,hd:1,dm:2500,dd:50},HMO:{p:1,b:.7,j:.5,c:0,hm:0,hd:0},Medicaid:{p:1,b:1,j:1,c:0,hm:0,hd:0},"Discount plan":{p:.25,b:.2,j:.15,c:.1,hm:0,hd:0}};
+const MS={Alabama:{t:"eo",cap:null,n:"Emergency only"},Alaska:{t:"ext",cap:null,n:"Covers most"},Arizona:{t:"comp",cap:1000,n:"$1K cap"},Arkansas:{t:"ext",cap:500,n:"$500 cap"},California:{t:"comp",cap:null,n:"Full, no cap"},Colorado:{t:"comp",cap:1500,n:"$1.5K cap"},Connecticut:{t:"comp",cap:null,n:"No cap"},Delaware:{t:"eo",cap:null,n:"Emergency only"},"District of Columbia":{t:"comp",cap:null,n:"Full"},Florida:{t:"lim",cap:null,n:"Limited"},Georgia:{t:"eo",cap:null,n:"Emergency only"},Hawaii:{t:"comp",cap:null,n:"Full"},Idaho:{t:"ext",cap:1000,n:"$1K cap"},Illinois:{t:"comp",cap:null,n:"Full"},Indiana:{t:"comp",cap:null,n:"HIP Plus"},Iowa:{t:"ext",cap:1000,n:"$1K cap"},Kansas:{t:"lim",cap:null,n:"Very limited"},Kentucky:{t:"comp",cap:2000,n:"$2K cap"},Louisiana:{t:"ext",cap:null,n:"Most services"},Maine:{t:"comp",cap:null,n:"Full"},Maryland:{t:"comp",cap:null,n:"Healthy Smiles"},Massachusetts:{t:"comp",cap:null,n:"MassHealth"},Michigan:{t:"comp",cap:null,n:"Full"},Minnesota:{t:"comp",cap:null,n:"Full"},Mississippi:{t:"eo",cap:null,n:"Emergency only"},Missouri:{t:"ext",cap:null,n:"Most services"},Montana:{t:"comp",cap:null,n:"Full"},Nebraska:{t:"ext",cap:749,n:"$749 cap"},Nevada:{t:"lim",cap:null,n:"Limited"},"New Hampshire":{t:"ext",cap:1500,n:"$1.5K cap"},"New Jersey":{t:"comp",cap:null,n:"Full"},"New Mexico":{t:"comp",cap:null,n:"Full"},"New York":{t:"comp",cap:null,n:"Full"},"North Carolina":{t:"lim",cap:null,n:"Limited"},"North Dakota":{t:"comp",cap:null,n:"Full"},Ohio:{t:"comp",cap:null,n:"Full"},Oklahoma:{t:"ext",cap:1000,n:"$1K cap"},Oregon:{t:"comp",cap:null,n:"Full"},Pennsylvania:{t:"comp",cap:null,n:"Full"},"Rhode Island":{t:"comp",cap:null,n:"Full"},"South Carolina":{t:"lim",cap:null,n:"Limited"},"South Dakota":{t:"lim",cap:1000,n:"$1K cap"},Tennessee:{t:"eo",cap:null,n:"Emergency only"},Texas:{t:"eo",cap:null,n:"Emergency only"},Utah:{t:"comp",cap:null,n:"Expanded 2025"},Vermont:{t:"comp",cap:null,n:"Full"},Virginia:{t:"comp",cap:null,n:"Full"},Washington:{t:"comp",cap:null,n:"Apple Health"},"West Virginia":{t:"comp",cap:2000,n:"$2K cap"},Wisconsin:{t:"comp",cap:null,n:"Full"},Wyoming:{t:"lim",cap:null,n:"Limited"}};
+const MC={comp:{Preventive:1,"Basic Restorative":1,"Major Restorative":1,Endodontics:1,Periodontal:1,Prosthodontics:1,Cosmetic:0},ext:{Preventive:1,"Basic Restorative":1,"Major Restorative":1,Endodontics:1,Periodontal:1,Prosthodontics:0,Cosmetic:0},lim:{Preventive:1,"Basic Restorative":1,"Major Restorative":0,Endodontics:0,Periodontal:0,Prosthodontics:0,Cosmetic:0},eo:{Preventive:0,"Basic Restorative":0,"Major Restorative":0,Endodontics:0,Periodontal:0,Prosthodontics:0,Cosmetic:0}};
+const SM={Alabama:.82,Alaska:1.35,Arizona:.95,Arkansas:.80,California:1.25,Colorado:1.05,Connecticut:1.25,Delaware:1.05,"District of Columbia":1.30,Florida:1.00,Georgia:.92,Hawaii:1.30,Idaho:.90,Illinois:1.10,Indiana:.90,Iowa:.88,Kansas:.88,Kentucky:.85,Louisiana:.85,Maine:1.00,Maryland:1.15,Massachusetts:1.30,Michigan:.95,Minnesota:1.05,Mississippi:.78,Missouri:.90,Montana:.92,Nebraska:.88,Nevada:1.05,"New Hampshire":1.10,"New Jersey":1.25,"New Mexico":.88,"New York":1.30,"North Carolina":.95,"North Dakota":.90,Ohio:.92,Oklahoma:.85,Oregon:1.10,Pennsylvania:1.05,"Rhode Island":1.15,"South Carolina":.88,"South Dakota":.88,Tennessee:.85,Texas:.95,Utah:.95,Vermont:1.05,Virginia:1.05,Washington:1.15,"West Virginia":.80,Wisconsin:.95,Wyoming:.92};
+const TL={comp:"Comprehensive",ext:"Extensive",lim:"Limited",eo:"Emergency only"};
+const TC={comp:"#2d8a4e",ext:"#a68307",lim:"#c2710c",eo:"#c2340a"};
+const STATES=Object.keys(SM).sort();
+
+let state="Texas",ins="No insurance",aMax=1500,ded=50,sel={},openCat=null,showSrc=false,showMap=false;
+
+function render(){
+  const plan=IT[ins];const mcd=ins==="Medicaid"?MS[state]:null;const mult=SM[state]||1;
+  const tierKey={preventive:"p",basic:"b",major:"j",cosmetic:"c"};
+
+  // compute results
+  const items=[];
+  for(const[k,v]of Object.entries(sel)){
+    const d=P[v.cat][v.proc];const mid=Math.round(d.m*mult*v.qty);
+    let cov=0,pay=mid;
+    if(ins==="Medicaid"&&mcd){if(MC[mcd.t]?.[v.cat]&&d.mb!=null){cov=Math.round(d.mb*v.qty);pay=0;}}
+    else{const r=plan[tierKey[TM[v.cat]]]||0;cov=Math.round(mid*r);pay=mid-cov;}
+    items.push({k,cat:v.cat,proc:v.proc,qty:v.qty,mid,cov,pay});
+  }
+  let tR=0,tC=0,tP=0;items.forEach(i=>{tR+=i.mid;tC+=i.cov;tP+=i.pay;});
+  if(plan.hd&&ins!=="Medicaid"){tP+=ded;tC=Math.max(0,tC-ded);}
+  const cap=plan.hm?aMax:(mcd?.cap||null);let warn=null;
+  if(cap&&tC>cap){const o=tC-cap;tP+=o;tC=cap;warn=`Exceeds $${cap.toLocaleString()} annual cap — +$${o.toLocaleString()} out of pocket.`;}
+  const has=items.length>0;
+
+  let h='';
+
+  // controls
+  h+=`<div class="grid2">
+    <div><label class="fl">State</label><select class="fi" onchange="state=this.value;render()">${STATES.map(s=>`<option${s===state?' selected':''}>${s}</option>`).join('')}</select></div>
+    <div><label class="fl">Insurance</label><select class="fi" onchange="ins=this.value;render()">${Object.keys(IT).map(k=>`<option${k===ins?' selected':''}>${k}</option>`).join('')}</select></div>
+  </div>`;
+
+  // medicaid bar
+  if(mcd){
+    h+=`<div class="mcd-bar"><span class="dot" style="background:${TC[mcd.t]}"></span><span class="tier">${TL[mcd.t]}</span><span class="note">— ${mcd.n}</span>`;
+    if(mcd.t==="eo") h+=`<div class="eo-warn">Only emergency extractions covered in ${state}.</div>`;
+    h+=`</div>`;
+  }
+
+  // PPO fields
+  if(plan.hm&&ins!=="Medicaid"){
+    h+=`<div class="grid2">
+      <div><label class="fl">Annual max ($)</label><input class="fi" type="number" value="${aMax}" onchange="aMax=+this.value;render()"></div>
+      <div><label class="fl">Deductible ($)</label><input class="fi" type="number" value="${ded}" onchange="ded=+this.value;render()"></div>
+    </div>`;
+  }
+
+  // procedures
+  h+=`<p class="tag" style="margin-bottom:24px">procedures</p>`;
+
+  for(const[cat,procs]of Object.entries(P)){
+    const isO=openCat===cat;
+    const isMcd=ins==="Medicaid"&&mcd;
+    const catOk=isMcd?MC[mcd.t]?.[cat]:true;
+    const cnt=Object.keys(sel).filter(k=>k.startsWith(cat+"|")).length;
+
+    h+=`<div class="cat-wrap">
+      <button class="cat-btn" onclick="openCat=openCat==='${cat}'?null:'${cat}';render()">
+        <span>${cat}${cnt?`<span class="cat-badge">${cnt}</span>`:''}${isMcd&&!catOk?'<span class="cat-nc">not covered</span>':''}</span>
+        <span class="plus${isO?' open':''}">+</span>
+      </button>
+      <div class="cat-body" style="max-height:${isO?'2000px':'0'}">
+        <div style="padding-bottom:20px">`;
+
+    for(const[proc,d]of Object.entries(procs)){
+      const k=`${cat}|${proc}`;const on=!!sel[k];const adj=Math.round(d.m*mult);
+      h+=`<div class="proc-row" onclick="if(!window._sel['${k}']){toggleP('${cat}','${proc}')}">
+        <div class="chk${on?' on'}" onclick="event.stopPropagation();toggleP('${cat}','${proc}')">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#F5F0EB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <span class="proc-name${on?' on'}">${proc}</span>
+        <span class="proc-price">$${adj}</span>
+        ${on?`<div class="qty-wrap" onclick="event.stopPropagation()">
+          <button class="qty-btn" onclick="setQ('${k}',-1)">−</button>
+          <span class="qty-val">${sel[k].qty}</span>
+          <button class="qty-btn" onclick="setQ('${k}',1)">+</button>
+        </div>`:''}
+      </div>`;
+    }
+    h+=`</div></div></div>`;
+  }
+  h+=`<div style="border-top:1px solid #e8e0d8"></div>`;
+
+  // results
+  if(has){
+    h+=`<div class="results"><p class="tag" style="margin-bottom:24px">your estimate</p>`;
+    for(const r of items){
+      h+=`<div class="res-row">
+        <span class="res-proc">${r.proc}${r.qty>1?`<span style="color:#d0c4d8;margin-left:6px;font-size:12px">×${r.qty}</span>`:''}</span>
+        <div class="res-nums">
+          ${r.cov>0?`<span class="res-strike">$${r.mid.toLocaleString()}</span><span class="res-pay">$${r.pay.toLocaleString()}</span>`:`<span class="res-pay-full">$${r.pay.toLocaleString()}</span>`}
+        </div>
+      </div>`;
+    }
+    if(warn) h+=`<div class="cap-warn">${warn}</div>`;
+
+    h+=`<div class="totals">
+      <div class="tot-line"><span class="tot-label">Retail</span><span class="tot-val">$${tR.toLocaleString()}</span></div>
+      ${tC>0?`<div class="tot-line"><span class="tot-label tot-cov">Covered</span><span class="tot-val tot-cov">−$${tC.toLocaleString()}</span></div>`:''}
+      <div class="tot-final"><span class="tot-you">You pay</span><span class="tot-big">$${tP.toLocaleString()}</span></div>
+      ${tR>0&&tC>0?`<div class="tot-pct">saving ${Math.round(tC/tR*100)}%</div>`:''}
+    </div>`;
+
+    // tips
+    h+=`<div class="tips"><p class="tag" style="margin-bottom:10px">worth knowing</p>`;
+    if(ins==="No insurance") h+=`<p>Most offices offer 5–20% off for cash upfront.</p><p>Dental schools charge 30–60% less, supervised by faculty.</p><p>FQHCs use sliding fees — <a href="https://findahealthcenter.hrsa.gov" target="_blank">find one</a>.</p>`;
+    if(mcd?.t==="eo") h+=`<p>${state} only covers emergencies. Try dental schools or community health centers.</p>`;
+    if(items.some(i=>i.cat==="Major Restorative")) h+=`<p>Crown tip — schedule prep in December, seating in January to split benefit years.</p>`;
+    if(items.some(i=>i.cat==="Prosthodontics")) h+=`<p>Implants are rarely covered. Consider HSA/FSA or financing.</p>`;
+    if(items.some(i=>i.cat==="Cosmetic")) h+=`<p>Cosmetic procedures are almost never covered.</p>`;
+    h+=`<p>These are estimates. Always confirm with your provider.</p></div>`;
+    h+=`</div>`;
+  } else {
+    h+=`<p class="empty">Select procedures above to see your estimate.</p>`;
+  }
+
+  // medicaid map
+  if(ins==="Medicaid"){
+    h+=`<div style="margin-top:48px"><button class="link-btn" onclick="showMap=!showMap;render()">${showMap?'hide':'view'} all 50 states →</button>`;
+    if(showMap){
+      h+=`<div class="map-wrap">`;
+      for(const[s,info]of Object.entries(MS).sort()){
+        h+=`<div class="map-row${s===state?' cur':''}"><span class="dot" style="background:${TC[info.t]};width:6px;height:6px;border-radius:50%;flex-shrink:0"></span><span class="map-state"${s===state?' style="font-weight:500"':''}>${s}</span><span class="map-tier">${TL[info.t]}</span><span class="map-cap">${info.cap?'$'+info.cap:'—'}</span></div>`;
+      }
+      h+=`</div>`;
+    }
+    h+=`</div>`;
+  }
+
+  // sources
+  h+=`<div style="margin-top:56px;padding-top:24px;border-top:1px solid #e8e0d8">
+    <button class="link-btn" onclick="showSrc=!showSrc;render()">${showSrc?'hide':'view'} data sources →</button>
+    ${showSrc?`<div class="src-wrap">
+      <p><b>Pricing</b> CareCredit/Synchrony 2024 (ASQ360°) · ADA Fee Survey · Fair Health · MD Medicaid 2025</p>
+      <p><b>Medicaid</b> CareQuest 2025 · MACPAC · ADA state schedules (Sep 2025)</p>
+      <p><b>Geographic</b> NDAS multipliers · Fair Health geozip</p>
+      <p><b>Insurance</b> ADA/NADP benefit design surveys</p>
+      <p style="margin-top:12px;font-style:italic">Estimates only. Not financial or medical advice.</p>
+    </div>`:''}
+  </div>`;
+
+  h+=`<p class="footer">dental cost estimator · 2026</p>`;
+
+  document.getElementById('app').innerHTML=h;
+  window._sel=sel;
+}
+
+function toggleP(cat,proc){
+  const k=`${cat}|${proc}`;
+  if(sel[k]) delete sel[k]; else sel[k]={cat,proc,qty:1};
+  render();
+}
+function setQ(k,delta){
+  if(sel[k]){sel[k].qty=Math.max(1,Math.min(10,sel[k].qty+delta));render();}
+}
+
+window._sel=sel;
+render();
+</script>
+</body>
+</html>
